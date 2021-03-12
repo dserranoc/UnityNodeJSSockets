@@ -4,16 +4,16 @@ module.exports = class Vector2 {
         this.y = y;
     }
 
-    Magnitude(){
+    Magnitude() {
         return Math.sqrt((this.x * this.x) + (this.y * this.y));
     }
 
-    Normalized(){
+    Normalized() {
         var mag = this.Magnitude();
         return new Vector2(this.x / mag, this.y / mag);
     }
 
-    Distance(OtherVect = Vector2){
+    Distance(OtherVect = Vector2) {
         var direction = new Vector2();
         direction.x = OtherVect.x - this.x;
         direction.y = OtherVect.y - this.y;

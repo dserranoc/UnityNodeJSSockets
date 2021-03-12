@@ -41,3 +41,18 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Ground
+    uniqueID: 3198488081
+    locked: 0
+  - name: Decoration
+    uniqueID: 1337009071
+    locked: 0
+  - name: Player
+    uniqueID: 651643127
+    locked: 0
+  - name: Decoration Above Player
+    uniqueID: 3555917571
+    locked: 0
+  - name: User Interface
+    uniqueID: 1407145383
+    locked: 0

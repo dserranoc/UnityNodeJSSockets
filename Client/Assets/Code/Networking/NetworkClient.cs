@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using SocketIO;
 using Project.Utility;
+using Project.Player;
 using System.Globalization;
 namespace Project.Networking
 {
@@ -34,7 +35,8 @@ namespace Project.Networking
             base.Update();
         }
 
-        private void initialize(){
+        private void initialize()
+        {
             serverObjects = new Dictionary<string, NetworkIdentity>();
         }
 
@@ -74,32 +76,55 @@ namespace Project.Networking
                 GameObject go = serverObjects[id].gameObject;
                 Destroy(go); // Remove from game
                 serverObjects.Remove(id); // Remove from memory
-                
+
             });
 
-            On("updatePosition", (E) => {
+            On("updatePosition", (E) =>
+            {
                 string id = E.data["id"].ToString().RemoveQuotes();
                 float x = E.data["position"]["x"].f;
                 float y = E.data["position"]["y"].f;
-                
+
 
                 NetworkIdentity ni = serverObjects[id];
-                
+
                 ni.transform.position = new Vector3(x, y, 0);
+            });
+
+            On("updateRotation", (E) =>
+            {
+                string id = E.data["id"].ToString().RemoveQuotes();
+                float tankRotation = E.data["tankRotation"].f;
+                float barrelRotation = E.data["barrelRotation"].f;
+
+
+                NetworkIdentity ni = serverObjects[id];
+
+                ni.transform.localEulerAngles = new Vector3(0, 0, tankRotation);
+                ni.GetComponent<PlayerManager>().SetRotation(barrelRotation);
             });
         }
     }
 
     [System.Serializable]
-    public class Player {
+    public class Player
+    {
         public string id;
         public Position position;
     }
 
     [System.Serializable]
-    public class Position {
+    public class Position
+    {
         public float x;
         public float y;
+    }
+
+    [System.Serializable]
+    public class PlayerRotation
+    {
+        public float tankRotation;
+        public float barrelRotation;
     }
 
 }
