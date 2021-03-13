@@ -5,6 +5,7 @@ using SocketIO;
 using Project.Utility;
 using Project.Player;
 using System.Globalization;
+using Project.Scriptable;
 namespace Project.Networking
 {
     public class NetworkClient : SocketIOComponent
@@ -15,6 +16,8 @@ namespace Project.Networking
 
         [SerializeField]
         private GameObject playerPrefab;
+        [SerializeField]
+        private ServerObjects serverSpawnables;
 
         public static string ClientID { get; private set; }
 
@@ -103,6 +106,43 @@ namespace Project.Networking
                 ni.transform.localEulerAngles = new Vector3(0, 0, tankRotation);
                 ni.GetComponent<PlayerManager>().SetRotation(barrelRotation);
             });
+
+            On("serverSpawn", (E) => {
+                string name = E.data["name"].str;
+                string id = E.data["id"].ToString().RemoveQuotes();
+                float x = E.data["position"]["x"].f;
+                float y = E.data["position"]["y"].f;
+                Debug.LogFormat("Server want us to spawn a '{0}'", name);
+
+                if (!serverObjects.ContainsKey(id)) {
+                    ServerObjectData sod = serverSpawnables.GetObjectByName(name);
+                    var spawnedObject = Instantiate(sod.Prefab, networkContainer);
+                    spawnedObject.transform.position = new Vector3(x, y, 0);
+                    var ni = spawnedObject.GetComponent<NetworkIdentity>();
+                    ni.SetControllerID(id);
+                    ni.SetSocketReference(this);
+
+                    //If bullet apply direction as well
+                    if (name == "Bullet") {
+                        float directionX = E.data["direction"]["x"].f;
+                        float directionY = E.data["direction"]["y"].f;
+
+                        float rot = Mathf.Atan2(directionY, directionX) * Mathf.Rad2Deg;
+                        Vector3 currentRotation = new Vector3(0, 0, rot -90);
+                        spawnedObject.transform.rotation = Quaternion.Euler(currentRotation);
+                    }
+
+                    serverObjects.Add(id, ni);
+                }
+
+            
+            });
+            On("serverUnspawn", (E) => {
+                string id = E.data["id"].ToString().RemoveQuotes();
+                NetworkIdentity ni = serverObjects[id];
+                serverObjects.Remove(id);
+                DestroyImmediate(ni.gameObject);
+            });
         }
     }
 
@@ -125,6 +165,13 @@ namespace Project.Networking
     {
         public float tankRotation;
         public float barrelRotation;
+    }
+
+    [System.Serializable]
+    public class BulletData {
+        public string id;
+        public Position position;
+        public Position direction;
     }
 
 }
