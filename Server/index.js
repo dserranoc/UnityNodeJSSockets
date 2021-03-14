@@ -16,16 +16,16 @@ setInterval(()=> {
 
         // Remove
         if(isDestroyed){
-            var index = bullet.indexOf(bullet);
+            var index = bullets.indexOf(bullet);
             if(index > -1) {
-                bullet.splice(index,1);
+                bullets.splice(index,1);
 
                 var returnData = {
                     id: bullet.id
                 }
                 
                 for(var playerID in players){
-                    sockets[playerID].emit('serverUnspawned', returnData);
+                    sockets[playerID].emit('serverUnspawn', returnData);
                 }
             }
         } else {
@@ -83,6 +83,7 @@ io.on('connection', function (socket) {
     socket.on('fireBullet', function(data) {
         var bullet = new Bullet();
         bullet.name = 'Bullet';
+        bullet.activator = data.activator;
         bullet.position.x = data.position.x;
         bullet.position.y = data.position.y;
         bullet.direction.x = data.direction.x;
@@ -93,6 +94,7 @@ io.on('connection', function (socket) {
         var returnData = {
             name: bullet.name,
             id: bullet.id,
+            activator: bullet.activator,
             position: {
                 x: bullet.position.x,
                 y: bullet.position.y
@@ -105,6 +107,18 @@ io.on('connection', function (socket) {
 
         socket.emit('serverSpawn', returnData);
         socket.broadcast.emit('serverSpawn', returnData);
+    });
+
+    socket.on('collisionDestroy', function(data){
+        console.log('Collision with bullet id ' + data.id);
+        let returnBullets = bullets.filter(bullet => {
+            return bullet.id == data.id;
+        });
+
+        // We will mostly only have have an entry but just in case loop through all and set to destroyed
+        returnBullets.forEach(bullet  => {
+            bullet.isDestroyed = true;
+        })
     });
 
     socket.on('disconnect', function () {

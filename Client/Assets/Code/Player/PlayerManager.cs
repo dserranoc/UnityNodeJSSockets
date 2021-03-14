@@ -90,6 +90,7 @@ namespace Project.Player
                 shootingCooldown.StartCooldown();
 
                 //Define Bullet
+                bulletData.activator = NetworkClient.ClientID;
                 bulletData.position.x = bulletSpawnPoint.position.x.TwoDecimals();
                 bulletData.position.y = bulletSpawnPoint.position.y.TwoDecimals();
                 bulletData.direction.x = bulletSpawnPoint.up.x;
