@@ -148,6 +148,22 @@ namespace Project.Networking
                 serverObjects.Remove(id);
                 DestroyImmediate(ni.gameObject);
             });
+
+            On("playerDied", (E) => {
+                string id = E.data["id"].ToString().RemoveQuotes();
+                NetworkIdentity ni = serverObjects[id];
+                ni.gameObject.SetActive(false);
+
+            });
+
+            On("playerRespawn", (E) => {
+                string id = E.data["id"].ToString().RemoveQuotes();
+                NetworkIdentity ni = serverObjects[id];
+                float x = E.data["position"]["x"].f;
+                float y = E.data["position"]["y"].f;
+                ni.transform.position = new Vector3(x, y, 0);
+                ni.gameObject.SetActive(true);
+            });
         }
     }
 
