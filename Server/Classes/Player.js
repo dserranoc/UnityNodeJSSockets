@@ -3,8 +3,9 @@ var Vector2 = require('./Vector2');
 
 module.exports = class Player {
     constructor() {
-        this.username = '';
+        this.username = 'Default_Player';
         this.id = shortid.generate();
+        this.lobby = 0;
         this.position = new Vector2();
         this.tankRotation = new Number(0);
         this.barrelRotation = new Number(0);
@@ -12,6 +13,11 @@ module.exports = class Player {
         this.isDead = false;
         this.respawnTicker = new Number(0);
         this.respawTime = new Number(0);
+    }
+
+    displayPlayerInformation(){
+        let player = this;
+        return `(${player.username} : ${player.id})`;
     }
 
     respawnCounter(){
